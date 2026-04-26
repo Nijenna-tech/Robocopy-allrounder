@@ -1,33 +1,34 @@
 @echo off
 
-:: Prüfen, ob das Script bereits als Admin neu gestartet wurde
-if "%1"=="--admin" goto :MAIN_START
+:: 1. Prüfen: Sind wir Admin?
+net session >nul 2>&1
+set "IS_ADMIN=%errorLevel%"
 
-:: --- Initialer Header und Countdown ---
+:: 2. Prüfen: Kommen wir gerade aus dem Selbstanlauf? (Marker checken)
+if "%1"=="--elevated" goto :MAIN_START
+
+:: 3. Wenn KEIN Admin -> Countdown zeigen und hochstufen
+if %IS_ADMIN% neq 0 (
 echo ====================================================
-echo       NIJENNA ROBOCOPY ALLROUNDER
+echo        NIJENNA ROBOCOPY ALLROUNDER
 echo ====================================================
 echo.
-echo [^!] USE AT YOUR OWN RISK [^!]
+echo [^!] USE AT YOUR OWN RISK [^!] 
 echo I am not responsible for any data loss or damage 
 echo caused by using this script.
 echo.
 echo ====================================================
 echo.
-timeout /t 1 /nobreak >nul
-echo Asking for Admin Rights in 3
-timeout /t 1 /nobreak >nul
-echo Asking for Admin Rights in 2
-timeout /t 1 /nobreak >nul
-echo Asking for Admin Rights in 1
-
-:: --- Admin-Rechte prüfen & mit Parameter neu starten ---
-net session >nul 2>&1 
-if %errorLevel% neq 0 (
-    echo Fordere Administratorrechte an... 
-    :: Wir übergeben den Parameter --admin beim Neustart
-    powershell -Command "Start-Process -FilePath '%0' -ArgumentList '--admin' -Verb RunAs" 
-    exit /b 
+    timeout /t 1 /nobreak >nul
+    echo Asking for Admin Rights in 3...
+    timeout /t 1 /nobreak >nul
+    echo Asking for Admin Rights in 2...
+    timeout /t 1 /nobreak >nul
+    echo Asking for Admin Rights in 1...
+    
+    :: Neustart mit Marker --elevated
+    powershell -Command "Start-Process -FilePath '%0' -ArgumentList '--elevated' -Verb RunAs"
+    exit /b
 )
 
 :MAIN_START
@@ -36,16 +37,15 @@ setlocal enabledelayedexpansion
 :: --- Log-Verzeichnis erstellen ---
 set "LOG_DIR=%USERPROFILE%\Documents\Nijenna Robocopy Log"
 if not exist "%LOG_DIR%" (
-    mkdir "%LOG_DIR%"
-    echo Ordner '%LOG_DIR%' wurde erstellt.
+    mkdir "%LOG_DIR%" [cite: 23]
 )
 
-:: --- Benutzereingaben ---
+:: --- Der Header für das Arbeitsfenster ---
 echo ====================================================
-echo       NIJENNA ROBOCOPY ALLROUNDER
+echo        NIJENNA ROBOCOPY ALLROUNDER
 echo ====================================================
 echo.
-echo [^^!] USE AT YOUR OWN RISK [^^!]
+echo [^^!] USE AT YOUR OWN RISK [^^!] 
 echo I am not responsible for any data loss or damage 
 echo caused by using this script.
 echo.
